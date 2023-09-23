@@ -32,5 +32,14 @@ class TestDirectoryFile(unittest.TestCase):
         self.assertIn("Example content", result)
         self.assertIn("Another example", result)
 
+    def test_append_text_to_file(self):
+        dir_fil = DirectoryFile(self.temp_dir)
+        dir_fil.append_text_to_file('New content', 'file1.txt')
+
+        with open(os.path.join(self.temp_dir, 'file1.txt'), encoding='UTF-8') as file:
+            content = file.read()
+            self.assertIn('New content', content)
+
+
 if __name__ == '__main__':
     unittest.main()
