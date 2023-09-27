@@ -56,3 +56,21 @@ class EncryptDecrypt(DirectoryFile):
             decrypted_words.append(decrypted_word)
 
         return decrypted_words
+
+    def save_encrypted_text(self):
+        file_name = 'encrypted_file.txt'
+        file_path = self.new_folder / file_name
+        if not self.new_folder.exists():
+            self.new_folder.mkdir(parents=True)
+        with open(file_path, 'w') as file:
+            for text in self.encrypt():
+                file.write(f'{text}\n')
+
+    def save_decrypted_text(self):
+        file_name = 'decrypted_file.txt'
+        file_path = self.new_folder / file_name
+        if not self.new_folder.exists():
+            self.new_folder.mkdir(parents=True)
+        with open(file_path, 'w') as file:
+            for text in self.decrypt():
+                file.write(f'{text}\n')
