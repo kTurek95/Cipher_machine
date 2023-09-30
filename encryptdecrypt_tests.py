@@ -1,5 +1,6 @@
 import os
 import unittest
+from cryptography.fernet import Fernet
 from encryptdecrypt import EncryptDecrypt
 
 
@@ -52,6 +53,38 @@ class TestEncryptedDecrypted(unittest.TestCase):
         self.assertEqual('kacper95', result)
 
         os.remove(os.path.join('test_password_file.txt'))
+
+    def test_create_kdf(self):
+        """
+        Tests the create_kdf method of the EncryptDecrypt class.
+
+        This test case creates an EncryptDecrypt object with the given
+        directory and password, and then calls the create_kdf method
+        to generate a key derivation function.
+        """
+        expected_result = \
+            b'\xe2kx\x96\x06\xfb\xc2\x8f\x97\x82\xbf\xc1\xc6\x19\x83$\xcfWFm\x14]Ip\x1a\xe5\xaa\xc1k\xee5\x1d'
+
+        ed = EncryptDecrypt('random_directory', 'kacper95')
+
+        result = ed.create_kdf()
+
+        self.assertEqual(result, expected_result)
+        self.assertEqual(len(result), 32)
+
+    def test_create_fernet(self):
+        """
+        Tests the create_fernet method of the EncryptDecrypt class.
+
+        This test case creates an EncryptDecrypt object with the given
+        directory and password, and then calls the create_fernet method
+        to generate a Fernet object.
+        """
+        ed = EncryptDecrypt('random_directory', 'kacper95')
+
+        result = ed.create_fernet()
+
+        self.assertIsInstance(result, Fernet)
 
 
 if __name__ == '__main__':
