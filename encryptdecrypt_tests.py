@@ -113,6 +113,36 @@ class TestEncryptedDecrypted(unittest.TestCase):
         os.remove(os.path.join(temp_dir, 'test_file.txt'))
         os.rmdir(temp_dir)
 
+    def test_decrypt(self):
+        """
+        Test the decryption functionality of the EncryptDecrypt class.
+
+        This function creates a temporary directory, writes sample text data to a file
+        in that directory, initializes an EncryptDecrypt instance, encrypts and then
+        decrypts the data, and tests whether the decrypted data matches the original.
+        """
+        temp_dir = 'random_directory1'
+        os.mkdir(temp_dir)
+        sample_text = ['kacper', 'kamil', 'oliwia']
+
+        with open(os.path.join(temp_dir, 'test_file.txt'), 'w', encoding='utf-8') as file:
+            for text in sample_text:
+                file.write(f'{text}\n')
+
+        ed = EncryptDecrypt('random_directory1', 'kacper95')
+        ed.encrypt()
+        result = ed.decrypt()
+
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 3)
+        self.assertEqual(result, sample_text)
+
+        for item in result:
+            self.assertIsInstance(item, str)
+
+        os.remove(os.path.join(temp_dir, 'test_file.txt'))
+        os.rmdir(temp_dir)
+
 
 if __name__ == '__main__':
     unittest.main()
