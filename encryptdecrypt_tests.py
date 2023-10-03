@@ -86,6 +86,33 @@ class TestEncryptedDecrypted(unittest.TestCase):
 
         self.assertIsInstance(result, Fernet)
 
+    def test_encrypt(self):
+        """
+        Test the encryption functionality of the EncryptDecrypt class.
+
+        This function creates a temporary directory, writes sample text data to a file
+        in that directory, initializes an EncryptDecrypt instance, and tests whether
+        the encryption process returns the expected results.
+        """
+        temp_dir = 'random_directory'
+        os.mkdir(temp_dir)
+        sample_text = ['kacper', 'kamil', 'oliwia']
+        with open(os.path.join(temp_dir, 'test_file.txt'), 'w', encoding='utf-8') as file:
+            for text in sample_text:
+                file.write(f'{text}\n')
+
+        ed = EncryptDecrypt('random_directory', 'kacper95')
+        result = ed.encrypt()
+
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 3)
+
+        for item in result:
+            self.assertIsInstance(item, bytes)
+
+        os.remove(os.path.join(temp_dir, 'test_file.txt'))
+        os.rmdir(temp_dir)
+
 
 if __name__ == '__main__':
     unittest.main()
