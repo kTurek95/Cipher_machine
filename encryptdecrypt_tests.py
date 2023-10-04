@@ -143,6 +143,46 @@ class TestEncryptedDecrypted(unittest.TestCase):
         os.remove(os.path.join(temp_dir, 'test_file.txt'))
         os.rmdir(temp_dir)
 
+    def test_save_encrypted_text(self):
+        """
+        Test the save_encrypted_text() function in the EncryptDecrypt class.
+
+        Creates a temporary directory 'random_directory2' and a text file with sample data.
+        Then, uses the EncryptDecrypt class to encrypt the file and save the encrypted text.
+        After saving the text, it checks if the output file 'result/encrypted_file.txt' exists.
+        Reads the contents of the encrypted file and verifies that each line is of type bytes
+        and that the number of lines is 3.
+        Finally, it removes all temporary files and directories.
+        """
+        temp_dir = 'random_directory2'
+        os.mkdir(temp_dir)
+        sample_text = ['kacper', 'kamil', 'oliwia']
+        with open(os.path.join(temp_dir, 'test_file.txt'), 'w', encoding='utf-8') as file:
+            for text in sample_text:
+                file.write(f'{text}\n')
+
+        ed = EncryptDecrypt('random_directory2', 'kacper95')
+        ed.encrypt()
+        ed.save_encrypted_text()
+
+        self.assertTrue(os.path.exists('result/encrypted_file.txt'))
+
+        with open('result/encrypted_file.txt', 'rb') as file:
+            lines = file.readlines()
+            for line in lines:
+                self.assertIsInstance(line.strip(), bytes)
+                self.assertEqual(len(lines), 3)
+
+        os.remove(os.path.join(temp_dir, 'test_file.txt'))
+        os.remove(os.path.join('result/encrypted_file.txt'))
+        if os.path.exists('result'):
+            for file_name in os.listdir('result'):
+                file_path = os.path.join('result', file_name)
+                os.remove(file_path)
+            os.rmdir('result')
+        os.rmdir(temp_dir)
+
+
 
 if __name__ == '__main__':
     unittest.main()
