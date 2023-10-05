@@ -182,6 +182,42 @@ class TestEncryptedDecrypted(unittest.TestCase):
             os.rmdir('result')
         os.rmdir(temp_dir)
 
+    def test_save_decrypted_text(self):
+        """
+       Test the save_decrypted_text() function in the EncryptDecrypt class.
+
+       This function creates a temporary directory, writes sample texts from a list to a file,
+       then uses EncryptDecrypt to encrypt, decrypt, and save the decrypted text to a file.
+       It checks whether the output file exists, contains the correct text data, and whether
+       the number of lines in the output file matches the number of sample texts.
+
+       """
+        temp_dir = 'random_directory3'
+        os.mkdir(temp_dir)
+        sample_text = ['kacper', 'kamil', 'oliwia']
+
+        with open(os.path.join(temp_dir, 'test_file.txt'), 'w', encoding='utf-8') as file:
+            for text in sample_text:
+                file.write(f'{text}\n')
+
+        ed = EncryptDecrypt('random_directory3', 'kacper95')
+        ed.encrypt()
+        ed.decrypt()
+        ed.save_decrypted_text()
+
+        self.assertTrue(os.path.exists('result/decrypted_file.txt'))
+
+        with open('result/decrypted_file.txt', 'r') as file:
+            lines = file.readlines()
+            for line in lines:
+                self.assertIsInstance(line.strip(), str)
+                self.assertEqual(len(lines), 3)
+
+        lines_stripped = [line.strip() for line in lines]
+        self.assertEqual(lines_stripped, sample_text)
+
+        os.remove(os.path.join(temp_dir, 'test_file.txt'))
+        os.rmdir(temp_dir)
 
 
 if __name__ == '__main__':
