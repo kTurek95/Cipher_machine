@@ -1,3 +1,23 @@
+"""
+Tests for the EncryptDecrypt module.
+
+This module contains a suite of unit tests for the EncryptDecrypt class,
+which is responsible for encryption and decryption functionalities. The tests aim
+to ensure that the methods of the class operate correctly and as expected.
+
+The tests cover:
+- Setting and retrieving the password.
+- Creating the key derivation function (KDF) and a Fernet object.
+- The process of encrypting and decrypting text.
+- Saving encrypted and decrypted text.
+
+To run the tests, execute this script directly as the main module.
+
+Example:
+    $ python3 encryptdecrypt_tests.py
+"""
+
+
 import os
 import unittest
 from cryptography.fernet import Fernet
@@ -16,14 +36,14 @@ class TestEncryptedDecrypted(unittest.TestCase):
         This test will pass if the assertion in step 5 is True, indicating that
         the password is correctly set and retrieved.
         """
-        ed = EncryptDecrypt('random_directory', 'kacper95')
-        with open('test_password_file.txt', 'w') as file:
-            file.write(ed.password)
+        encrypt_decrypt = EncryptDecrypt('random_directory', 'kacper95')
+        with open('test_password_file.txt', 'w', encoding='utf8') as file:
+            file.write(encrypt_decrypt.password)
 
-        with open('test_password_file.txt') as file:
+        with open('test_password_file.txt', encoding='utf8') as file:
             content = file.read()
 
-        ed.set_password()
+        encrypt_decrypt.set_password()
 
         self.assertIn('kacper95', content)
 
@@ -40,15 +60,15 @@ class TestEncryptedDecrypted(unittest.TestCase):
         This test will pass if the assertion in step 5 is True, signifying that
         the password is correctly retrieved and matches the expected value.
         """
-        with open('test_password_file.txt', 'w') as file:
+        with open('test_password_file.txt', 'w', encoding='utf8') as file:
             file.write('kacper95')
 
-        with open('test_password_file.txt') as file:
+        with open('test_password_file.txt', encoding='utf8') as file:
             content = file.read()
 
-        ed = EncryptDecrypt('random_directory', content)
+        encrypt_decrypt = EncryptDecrypt('random_directory', content)
 
-        result = ed.get_password()
+        result = encrypt_decrypt.get_password()
 
         self.assertEqual('kacper95', result)
 
@@ -63,11 +83,12 @@ class TestEncryptedDecrypted(unittest.TestCase):
         to generate a key derivation function.
         """
         expected_result = \
-            b'\xe2kx\x96\x06\xfb\xc2\x8f\x97\x82\xbf\xc1\xc6\x19\x83$\xcfWFm\x14]Ip\x1a\xe5\xaa\xc1k\xee5\x1d'
+            b'\xe2kx\x96\x06\xfb\xc2\x8f\x97\x82\xbf\xc1\
+            xc6\x19\x83$\xcfWFm\x14]Ip\x1a\xe5\xaa\xc1k\xee5\x1d'
 
-        ed = EncryptDecrypt('random_directory', 'kacper95')
+        encreypt_decrypt = EncryptDecrypt('random_directory', 'kacper95')
 
-        result = ed.create_kdf()
+        result = encreypt_decrypt.create_kdf()
 
         self.assertEqual(result, expected_result)
         self.assertEqual(len(result), 32)
@@ -80,9 +101,9 @@ class TestEncryptedDecrypted(unittest.TestCase):
         directory and password, and then calls the create_fernet method
         to generate a Fernet object.
         """
-        ed = EncryptDecrypt('random_directory', 'kacper95')
+        encrypt_decrypt = EncryptDecrypt('random_directory', 'kacper95')
 
-        result = ed.create_fernet()
+        result = encrypt_decrypt.create_fernet()
 
         self.assertIsInstance(result, Fernet)
 
@@ -101,8 +122,8 @@ class TestEncryptedDecrypted(unittest.TestCase):
             for text in sample_text:
                 file.write(f'{text}\n')
 
-        ed = EncryptDecrypt('random_directory', 'kacper95')
-        result = ed.encrypt()
+        encrypt_decrypt = EncryptDecrypt('random_directory', 'kacper95')
+        result = encrypt_decrypt.encrypt()
 
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 3)
@@ -129,9 +150,9 @@ class TestEncryptedDecrypted(unittest.TestCase):
             for text in sample_text:
                 file.write(f'{text}\n')
 
-        ed = EncryptDecrypt('random_directory1', 'kacper95')
-        ed.encrypt()
-        result = ed.decrypt()
+        encrypt_decrypt = EncryptDecrypt('random_directory1', 'kacper95')
+        encrypt_decrypt.encrypt()
+        result = encrypt_decrypt.decrypt()
 
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 3)
@@ -161,9 +182,9 @@ class TestEncryptedDecrypted(unittest.TestCase):
             for text in sample_text:
                 file.write(f'{text}\n')
 
-        ed = EncryptDecrypt('random_directory2', 'kacper95')
-        ed.encrypt()
-        ed.save_encrypted_text()
+        encrypt_decrypt = EncryptDecrypt('random_directory2', 'kacper95')
+        encrypt_decrypt.encrypt()
+        encrypt_decrypt.save_encrypted_text()
 
         self.assertTrue(os.path.exists('result/encrypted_file.txt'))
 
@@ -200,14 +221,14 @@ class TestEncryptedDecrypted(unittest.TestCase):
             for text in sample_text:
                 file.write(f'{text}\n')
 
-        ed = EncryptDecrypt('random_directory3', 'kacper95')
-        ed.encrypt()
-        ed.decrypt()
-        ed.save_decrypted_text()
+        encrypt_decrypt = EncryptDecrypt('random_directory3', 'kacper95')
+        encrypt_decrypt.encrypt()
+        encrypt_decrypt.decrypt()
+        encrypt_decrypt.save_decrypted_text()
 
         self.assertTrue(os.path.exists('result/decrypted_file.txt'))
 
-        with open('result/decrypted_file.txt', 'r') as file:
+        with open('result/decrypted_file.txt', 'r', encoding='utf8') as file:
             lines = file.readlines()
             for line in lines:
                 self.assertIsInstance(line.strip(), str)
