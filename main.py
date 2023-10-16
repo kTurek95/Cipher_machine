@@ -51,25 +51,32 @@ def process_mode(parser, directory, saved_password):
     """
     entered_password = parser.password
 
-    if entered_password == saved_password:
+    if entered_password != saved_password:
+        print('Wrong password')
+    else:
         try:
-            if parser.mode == 'encrypt':
-                directory.save_encrypted_text()
+            if parser.directoryfile is None:
+                print('You forgot to add a directory path.')
+            elif parser.mode == 'encrypt':
+                if not os.path.exists('result/encrypted_file.txt'):
+                    directory.save_encrypted_text()
+                else:
+                    print('Encrypted file already exists')
             elif parser.mode == 'decrypt':
                 if os.path.exists('result/encrypted_file.txt'):
-                    directory.save_decrypted_text()
+                    if not os.path.exists('result/decrypted_file.txt'):
+                        directory.save_decrypted_text()
+                    else:
+                        print('Decrypted file already exists')
                 else:
                     print('There is no file with encrypted text')
             elif parser.mode == 'append':
                 text = input('Write what you want to add to the file: ')
-                file = input('Provide the file: ')
-                print(directory.append_text_to_file(text, file))
+                print(directory.append_text_to_file(text, parser.directoryfile))
             else:
                 raise Exception('Unknown mode')
         except Exception as error:
             print(str(error))
-    else:
-        print('Wrong password')
 
 
 def main():
@@ -83,9 +90,10 @@ def main():
     parser = create_parser()
     directory = EncryptDecrypt(parser.directoryfile, parser.password)
 
-    saved_password = set_password_if_not_set(directory)
-
-    process_mode(parser, directory, saved_password)
+    if not os.path.exists('password.txt'):
+        set_password_if_not_set(directory)
+    else:
+        process_mode(parser, directory, set_password_if_not_set(directory))
 
 
 if __name__ == '__main__':
