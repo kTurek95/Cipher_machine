@@ -1,7 +1,7 @@
 """ This module defines the DirectoryFile class for performing file operations in a specified directory. """
-
+import os
 from os import walk
-from pathlib import Path
+from os.path import isdir
 
 
 class DirectoryFile:
@@ -33,10 +33,13 @@ class DirectoryFile:
             List[str]: List of paths to text files (files with a .txt extension).
         """
         outputs = []
-        for path, directories, files in walk(self.directory):
-            for file in files:
-                if file.endswith('.txt'):
-                    outputs.append(f'{path}/{file}')
+        if isdir(self.directory):
+            for path, directories, files in walk(self.directory):
+                for file in files:
+                    if file.endswith('.txt'):
+                        outputs.append(f'{path}/{file}')
+        elif self.directory.endswith('.txt'):
+            outputs.append(self.directory)
 
         return outputs
 
@@ -56,7 +59,7 @@ class DirectoryFile:
         combined_texts = "\n".join(texts)
         return combined_texts
 
-    def append_text_to_file(self, text, file_name):
+    def append_text_to_file(self, text: str, file_name: str):
         """
         Appends the specified text to an existing file with the given name.
 
@@ -67,11 +70,19 @@ class DirectoryFile:
         Returns:
             str: Success message or file not found information.
         """
+
         samples = self.get_file()
+        found = False
+
         for sample in samples:
-            sample_path = Path(sample)
-            if sample_path.name == file_name:
-                with open(sample_path, 'a') as output:
-                    output.write(f'{text}\n')
-                return None
-        return f'File {file_name} does not exist.'
+            if file_name in sample:
+                if os.path.exists(file_name):
+                    with open(sample, 'a') as output:
+                        output.write(f'{text}\n')
+                    found = True
+                else:
+                    print('You provided the wrong file path."')
+        if found:
+            return f'File(s) containing "{file_name}" have been updated.'
+        else:
+            return f'No file(s) containing "{file_name}" were found.'
