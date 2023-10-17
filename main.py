@@ -15,68 +15,51 @@ Functions:
 """
 
 import os.path
+import getpass
 from parser import create_parser
 from encryptdecrypt import EncryptDecrypt
 
 
 def set_password_if_not_set(directory):
-    """
-    Sets a password for the given directory if one is not already set.
-
-    Args:
-        directory (Directory): The directory for which to set the password.
-
-    Returns:
-        str or None: If a password was set, returns 'The password has been set';
-        otherwise, returns the saved password (or None if no password is set).
-    """
-    saved_password = directory.get_password()
-
-    if saved_password is None:
-        directory.set_password()
-        print('The password has been set')
-        return
-
-    return saved_password
+    password_from_user = getpass.getpass('Enter the password: ')
+    return directory.set_password(password_from_user)
 
 
-def process_mode(parser, directory, saved_password):
+def process_mode(parser, directory):
     """
     Process the specified mode of operation for a directory.
 
     Params:
         parser (argparse.ArgumentParser): The argument parser to parse command-line arguments.
         directory (Directory): The directory to operate on.
-        saved_password (str): The saved password for the directory.
     """
-    entered_password = parser.password
-
-    if entered_password != saved_password:
-        print('Wrong password')
-    else:
-        try:
-            if parser.directoryfile is None:
-                print('You forgot to add a directory path.')
-            elif parser.mode == 'encrypt':
-                if not os.path.exists('result/encrypted_file.txt'):
-                    directory.save_encrypted_text()
-                else:
-                    print('Encrypted file already exists')
-            elif parser.mode == 'decrypt':
-                if os.path.exists('result/encrypted_file.txt'):
-                    if not os.path.exists('result/decrypted_file.txt'):
-                        directory.save_decrypted_text()
-                    else:
-                        print('Decrypted file already exists')
-                else:
-                    print('There is no file with encrypted text')
-            elif parser.mode == 'append':
-                text = input('Write what you want to add to the file: ')
-                print(directory.append_text_to_file(text, parser.directoryfile))
+    try:
+        if parser.directoryFile is None:
+            print('You forgot to add a directory path.')
+        elif not os.path.exists(parser.directoryFile):
+            print('The specified directory does not exist')
+        elif parser.mode == 'encrypt':
+            if not os.path.exists(f'result/{parser.directoryFile.replace("/", "_")}.encrypt'):
+                directory.save_encrypted_text()
             else:
-                raise Exception('Unknown mode')
-        except Exception as error:
-            print(str(error))
+                print('Encrypted file already exists')
+        elif parser.mode == 'decrypt':
+            if os.path.exists(f'result/{parser.directoryFile.replace("/", "_")}.encrypt'):
+                if not os.path.exists(f'result/{parser.directoryFile.replace("/", "_")}.decrypt'):
+                    directory.save_decrypted_text()
+                else:
+                    print('Decrypted file already exists')
+            else:
+                print('There is no file with encrypted text')
+        elif parser.mode == 'append':
+            text = input('Write what you want to add to the file: ')
+            print(directory.append_text_to_file(text, parser.directoryFile))
+        elif parser.mode is None:
+            print('Add -m with one of the given options [encrypt, decrypt, append]')
+        else:
+            raise Exception('Unknown mode')
+    except Exception as error:
+        print(str(error))
 
 
 def main():
@@ -88,12 +71,22 @@ def main():
      and then processes the specified mode of operation.
     """
     parser = create_parser()
-    directory = EncryptDecrypt(parser.directoryfile, parser.password)
+    directory = EncryptDecrypt(parser.directoryFile)
 
     if not os.path.exists('password.txt'):
-        set_password_if_not_set(directory)
+        if parser.password:
+            set_password_if_not_set(directory)
+            print('Password has been set')
+        elif not parser.password:
+            print('You must provide a password using -p')
+    elif os.path.exists('password.txt') and parser.password:
+        print('The password has already been set')
     else:
-        process_mode(parser, directory, set_password_if_not_set(directory))
+        access_password = directory.get_password()
+        if parser.accessPassword == access_password:
+            process_mode(parser, directory)
+        else:
+            print('Wrong password')
 
 
 if __name__ == '__main__':
