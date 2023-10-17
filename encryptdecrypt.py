@@ -1,4 +1,5 @@
 import base64
+import os
 from pathlib import Path
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
@@ -7,16 +8,15 @@ from directoryfile import DirectoryFile
 
 
 class EncryptDecrypt(DirectoryFile):
-    def __init__(self, directory: str, password):
+    def __init__(self, directory: str):
         super().__init__(directory)
-        self.password = password
         self.key = b'!123!321!'
         self.new_folder = Path('result')
         self.password_file = "password.txt"
 
-    def set_password(self):
+    def set_password(self, password):
         with open(self.password_file, 'w') as file:
-            file.write(self.password)
+            file.write(password)
 
     def get_password(self):
         try:
@@ -58,8 +58,8 @@ class EncryptDecrypt(DirectoryFile):
         return decrypted_words
 
     def save_encrypted_text(self):
-        file_name = 'encrypted_file.txt'
-        file_path = self.new_folder / file_name
+        file_name = f'{self.directory.replace("/", "_")}.encrypt'
+        file_path = os.path.join(self.new_folder, file_name)
         if not self.new_folder.exists():
             self.new_folder.mkdir(parents=True)
         with open(file_path, 'w') as file:
@@ -67,8 +67,8 @@ class EncryptDecrypt(DirectoryFile):
                 file.write(f'{text}\n')
 
     def save_decrypted_text(self):
-        file_name = 'decrypted_file.txt'
-        file_path = self.new_folder / file_name
+        file_name = f'{self.directory.replace("/", "_")}.decrypt'
+        file_path = os.path.join(self.new_folder, file_name)
         if not self.new_folder.exists():
             self.new_folder.mkdir(parents=True)
         with open(file_path, 'w') as file:
