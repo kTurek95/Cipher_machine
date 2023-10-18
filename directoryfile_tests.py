@@ -59,12 +59,32 @@ class TestDirectoryFile(unittest.TestCase):
         Ensures that the method appends the provided text content
         to the specified file in the directory.
         """
+        file_path = os.path.join(self.temp_dir, 'file1.txt')
         dir_fil = DirectoryFile(self.temp_dir)
-        dir_fil.append_text_to_file('New content', 'file1.txt')
+        dir_fil.append_text_to_file('New content', file_path)
 
-        with open(os.path.join(self.temp_dir, 'file1.txt'), encoding='UTF-8') as file:
+        with open(file_path, encoding='UTF-8') as file:
             content = file.read()
             self.assertIn('New content', content)
+
+    def test_append_text_to_directory(self):
+        """
+        Test the append_text_to_file method of the DirectoryFile class.
+
+        This test ensures that the method correctly appends a specified text
+        to all files present within the given directory, including those in
+        subdirectories. After appending, the test verifies that the text
+        is indeed present in each of the files.
+        """
+        dir_fill = DirectoryFile(self.temp_dir)
+        text_to_append = 'New content'
+        dir_fill.append_text_to_file(text_to_append, self.temp_dir)
+
+        for root, _, files in os.walk(self.temp_dir):
+            for file_name in files:
+                with open(os.path.join(root, file_name), 'r', encoding='UTF-8') as file:
+                    content = file.read()
+                    self.assertIn(text_to_append, content)
 
 
 if __name__ == '__main__':
