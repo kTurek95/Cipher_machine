@@ -25,7 +25,7 @@ from encryptdecrypt import EncryptDecrypt
 
 
 class TestEncryptedDecrypted(unittest.TestCase):
-    def test_set_password(self):
+    def test_set_password(self, password='kacper95'):
         """
         Test case for the set_password method of the EncryptDecrypt class.
 
@@ -36,14 +36,14 @@ class TestEncryptedDecrypted(unittest.TestCase):
         This test will pass if the assertion in step 5 is True, indicating that
         the password is correctly set and retrieved.
         """
-        encrypt_decrypt = EncryptDecrypt('random_directory', 'kacper95')
+        encrypt_decrypt = EncryptDecrypt('random_directory')
         with open('test_password_file.txt', 'w', encoding='utf8') as file:
-            file.write(encrypt_decrypt.password)
+            file.write(password)
 
         with open('test_password_file.txt', encoding='utf8') as file:
             content = file.read()
 
-        encrypt_decrypt.set_password()
+        encrypt_decrypt.set_password(password)
 
         self.assertIn('kacper95', content)
 
@@ -66,7 +66,8 @@ class TestEncryptedDecrypted(unittest.TestCase):
         with open('test_password_file.txt', encoding='utf8') as file:
             content = file.read()
 
-        encrypt_decrypt = EncryptDecrypt('random_directory', content)
+        encrypt_decrypt = EncryptDecrypt('random_directory')
+        encrypt_decrypt.set_password(content)
 
         result = encrypt_decrypt.get_password()
 
@@ -83,12 +84,11 @@ class TestEncryptedDecrypted(unittest.TestCase):
         to generate a key derivation function.
         """
         expected_result = \
-            b'\xe2kx\x96\x06\xfb\xc2\x8f\x97\x82\xbf\xc1\
-            xc6\x19\x83$\xcfWFm\x14]Ip\x1a\xe5\xaa\xc1k\xee5\x1d'
+            b'\xe2kx\x96\x06\xfb\xc2\x8f\x97\x82\xbf\xc1\xc6\x19\x83$\xcfWFm\x14]Ip\x1a\xe5\xaa\xc1k\xee5\x1d'
 
-        encreypt_decrypt = EncryptDecrypt('random_directory', 'kacper95')
+        encrypt_decrypt = EncryptDecrypt('random_directory')
 
-        result = encreypt_decrypt.create_kdf()
+        result = encrypt_decrypt.create_kdf()
 
         self.assertEqual(result, expected_result)
         self.assertEqual(len(result), 32)
@@ -101,7 +101,7 @@ class TestEncryptedDecrypted(unittest.TestCase):
         directory and password, and then calls the create_fernet method
         to generate a Fernet object.
         """
-        encrypt_decrypt = EncryptDecrypt('random_directory', 'kacper95')
+        encrypt_decrypt = EncryptDecrypt('random_directory')
 
         result = encrypt_decrypt.create_fernet()
 
@@ -122,7 +122,7 @@ class TestEncryptedDecrypted(unittest.TestCase):
             for text in sample_text:
                 file.write(f'{text}\n')
 
-        encrypt_decrypt = EncryptDecrypt('random_directory', 'kacper95')
+        encrypt_decrypt = EncryptDecrypt('random_directory')
         result = encrypt_decrypt.encrypt()
 
         self.assertIsInstance(result, list)
@@ -150,7 +150,7 @@ class TestEncryptedDecrypted(unittest.TestCase):
             for text in sample_text:
                 file.write(f'{text}\n')
 
-        encrypt_decrypt = EncryptDecrypt('random_directory1', 'kacper95')
+        encrypt_decrypt = EncryptDecrypt('random_directory1')
         encrypt_decrypt.encrypt()
         result = encrypt_decrypt.decrypt()
 
@@ -182,20 +182,20 @@ class TestEncryptedDecrypted(unittest.TestCase):
             for text in sample_text:
                 file.write(f'{text}\n')
 
-        encrypt_decrypt = EncryptDecrypt('random_directory2', 'kacper95')
+        encrypt_decrypt = EncryptDecrypt('random_directory2')
         encrypt_decrypt.encrypt()
         encrypt_decrypt.save_encrypted_text()
 
-        self.assertTrue(os.path.exists('result/encrypted_file.txt'))
+        self.assertTrue(os.path.exists('result/random_directory2.encrypt'))
 
-        with open('result/encrypted_file.txt', 'rb') as file:
+        with open('result/random_directory2.encrypt', 'rb') as file:
             lines = file.readlines()
             for line in lines:
                 self.assertIsInstance(line.strip(), bytes)
                 self.assertEqual(len(lines), 3)
 
         os.remove(os.path.join(temp_dir, 'test_file.txt'))
-        os.remove(os.path.join('result/encrypted_file.txt'))
+        os.remove(os.path.join('result/random_directory2.encrypt'))
         if os.path.exists('result'):
             for file_name in os.listdir('result'):
                 file_path = os.path.join('result', file_name)
@@ -221,14 +221,14 @@ class TestEncryptedDecrypted(unittest.TestCase):
             for text in sample_text:
                 file.write(f'{text}\n')
 
-        encrypt_decrypt = EncryptDecrypt('random_directory3', 'kacper95')
+        encrypt_decrypt = EncryptDecrypt('random_directory3')
         encrypt_decrypt.encrypt()
         encrypt_decrypt.decrypt()
         encrypt_decrypt.save_decrypted_text()
 
-        self.assertTrue(os.path.exists('result/decrypted_file.txt'))
+        self.assertTrue(os.path.exists('result/random_directory3.decrypt'))
 
-        with open('result/decrypted_file.txt', 'r', encoding='utf8') as file:
+        with open('result/random_directory3.decrypt', 'r', encoding='utf8') as file:
             lines = file.readlines()
             for line in lines:
                 self.assertIsInstance(line.strip(), str)
